@@ -3,7 +3,7 @@ import { User } from "../models/user.model.js";
 
 const getAllUsers = async (req, res) => {
   try {
-    const users = await User.find({ role: "user" }).select("-password");
+    const users = await User.find().select("-password");
 
     const userWithTaskCounts = await Promise.all(
       users.map(async (user) => {

@@ -146,10 +146,9 @@ const getTasks = async (req, res) => {
 
 const getTaskById = async (req, res) => {
   try {
-    const task = await Task.findById(req.params.id).populate(
-      "assignedTo",
-      "name email profilePicture",
-    );
+    const task = await Task.findById(req.params.id)
+      .populate("assignedTo", "name email profilePicture")
+      .populate("createdBy", "name email profilePicture");
 
     if (!task) {
       return res.status(404).json({
@@ -321,7 +320,7 @@ const getDashboardData = async (req, res) => {
     ]);
 
     const taskDistribution = taskStatuses.reduce((acc, status) => {
-      const formattedKey = status.replace(/\s+/g, ""); //remove spaces for response keys
+      const formattedKey = status.replace(/\s+/g, "");
 
       acc[formattedKey] =
         taskDistributionRaw.find((item) => item._id === status)?.count || 0;
@@ -467,6 +466,69 @@ const userDashboardData = async (req, res) => {
   }
 };
 
+const getTaskWorkspace = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const task = await Task.findById(id).select("workspaceCode");
+
+    if (!task) {
+      return res.status(404).json({
+        success: false,
+        message: "Task not found!",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      workspaceCode: task.workspaceCode,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      success: false,
+      message: "Error fetching workspace code",
+    });
+  }
+};
+
+const updateTaskWorkspace = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { workspaceCode } = req.body;
+
+    const task = await Task.findById(id);
+
+    if (!task) {
+      return res.status(404).json({
+        success: false,
+        message: "Task not found!",
+      });
+    }
+
+    if (!task.assignedTo.includes(req.id) && req.role !== "admin") {
+      return res.status(403).json({
+        success: false,
+        message: "Not authorized to update this workspace",
+      });
+    }
+
+    task.workspaceCode = workspaceCode;
+    await task.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Workspace saved successfully",
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      success: false,
+      message: "Error saving workspace",
+    });
+  }
+};
+
 export {
   createTask,
   getTasks,
@@ -476,4 +538,6 @@ export {
   updateTaskChecklist,
   getDashboardData,
   userDashboardData,
+  getTaskWorkspace,
+  updateTaskWorkspace,
 };

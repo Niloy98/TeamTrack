@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import moment from "moment";
 import { AvatarGroup, DashboardLayout } from "../../components";
 import axios from "axios";
@@ -7,16 +7,16 @@ import toast from "react-hot-toast";
 
 const TaskDetails = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
+
   const [task, setTask] = useState(null);
 
   const getStatusTagColor = (status) => {
     switch (status) {
       case "In Progress":
         return "text-cyan-500 bg-cyan-50 border border-cyan-500/10";
-
       case "Completed":
         return "text-lime-500 bg-lime-50 border border-lime-500/10";
-
       default:
         return "text-violet-500 bg-violet-50 border border-violet-500/10";
     }
@@ -31,7 +31,6 @@ const TaskDetails = () => {
 
       if (response.data) {
         const taskInfo = response.data.task;
-
         setTask(taskInfo);
       }
     } catch (error) {
@@ -66,11 +65,11 @@ const TaskDetails = () => {
           }
         } else {
           todoChecklist[index].completed = !todoChecklist[index].completed;
-          toast.error("Failed to update todo checklist."); // Trigger error toast
+          toast.error("Failed to update todo checklist.");
         }
       } catch (error) {
         todoChecklist[index].completed = !todoChecklist[index].completed;
-        toast.error("Something went wrong updating the checklist."); // Trigger error toast
+        toast.error("Something went wrong updating the checklist.");
       }
     }
   };
@@ -79,7 +78,6 @@ const TaskDetails = () => {
     if (!/^https?:\/\//i.test(link)) {
       link = "https://" + link;
     }
-
     window.open(link, "_blank");
   };
 
@@ -108,7 +106,6 @@ const TaskDetails = () => {
                       )}`}
                     >
                       {task?.status}
-
                       <span className="ml-1.5 w-2 h-2 rounded-full bg-current opacity-80"></span>
                     </div>
                   </div>
@@ -119,11 +116,11 @@ const TaskDetails = () => {
                 </div>
 
                 <div className="grid grid-cols-12 gap-4 mt-4">
-                  <div className="col-span-6 md:col-span-4">
+                  <div className="col-span-6 md:col-span-3">
                     <InfoBox label={"Priority"} value={task?.priority} />
                   </div>
 
-                  <div className="col-span-6 md:col-span-4">
+                  <div className="col-span-6 md:col-span-3">
                     <InfoBox
                       label={"Due Date"}
                       value={
@@ -134,18 +131,49 @@ const TaskDetails = () => {
                     />
                   </div>
 
-                  <div className="col-span-6 md:col-span-4">
-                    <label className="text-xs font-medium text-slate-500">
+                  <div className="col-span-6 md:col-span-3">
+                    <label className="text-xs font-medium text-slate-500 block mb-1">
+                      Created By
+                    </label>
+                    <div className="flex flex-wrap gap-2 mt-0.5">
+                      {task?.createdBy?.map((creator, index) => (
+                        <div
+                          key={`creator_${index}`}
+                          className="flex items-center gap-2 bg-gray-50/50 p-1.5 pr-3 rounded-full border border-gray-100 w-fit"
+                        >
+                          {creator?.profilePicture ? (
+                            <img
+                              src={creator.profilePicture}
+                              alt={creator.name}
+                              className="w-6 h-6 rounded-full object-cover shadow-sm"
+                            />
+                          ) : (
+                            <div className="w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center text-[10px] font-bold text-white uppercase shadow-sm">
+                              {creator?.name?.charAt(0)}
+                            </div>
+                          )}
+                          <span className="text-xs font-medium text-gray-700">
+                            {creator?.name}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="col-span-6 md:col-span-3">
+                    <label className="text-xs font-medium text-slate-500 block mb-1">
                       Assigned To
                     </label>
-
-                    <AvatarGroup
-                      avatars={
-                        task?.assignedTo?.map((item) => item?.profilePicture) ||
-                        []
-                      }
-                      maxVisible={5}
-                    />
+                    <div className="mt-0.5">
+                      <AvatarGroup
+                        avatars={
+                          task?.assignedTo?.map(
+                            (item) => item?.profilePicture,
+                          ) || []
+                        }
+                        maxVisible={5}
+                      />
+                    </div>
                   </div>
                 </div>
 
@@ -164,22 +192,31 @@ const TaskDetails = () => {
                   ))}
                 </div>
 
-                {task?.attachments?.length > 0 && (
-                  <div className="mt-2">
-                    <label className="text-xs font-medium text-slate-500">
-                      Attachments
-                    </label>
-
-                    {task?.attachments?.map((link, index) => (
-                      <Attachment
-                        key={`link_${index}`}
-                        link={link}
-                        index={index}
-                        onClick={() => handleLinkClick(link)}
+                <div className="mt-6 border-t border-gray-100 pt-6">
+                  <button
+                    onClick={() =>
+                      navigate(`/user/workspace/${id}`, {
+                        state: { taskTitle: task?.title },
+                      })
+                    }
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-600 text-sm font-semibold rounded-lg hover:bg-blue-100 transition-colors border border-blue-200"
+                  >
+                    <svg
+                      className="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"
                       />
-                    ))}
-                  </div>
-                )}
+                    </svg>
+                    Open Collaborative Workspace
+                  </button>
+                </div>
               </div>
             </div>
           </div>

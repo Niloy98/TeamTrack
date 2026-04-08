@@ -1,6 +1,8 @@
 import React from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import {
+  AdminTaskDetails,
+  AdminUserDetails,
   CreateTask,
   Dashboard,
   Login,
@@ -10,6 +12,7 @@ import {
   SignUp,
   TaskDetails,
   UserDashboard,
+  WorkspacePage,
 } from "./pages";
 import PrivateRoute from "./routes/PrivateRoute";
 import { useSelector } from "react-redux";
@@ -28,12 +31,22 @@ const App = () => {
             <Route path="/admin/tasks" element={<ManageTasks />} />
             <Route path="/admin/users" element={<ManageUsers />} />
             <Route path="/admin/create-task" element={<CreateTask />} />
+            <Route
+              path="/admin/task-details/:id"
+              element={<AdminTaskDetails />}
+            />
+            <Route path="/admin/workspace/:id" element={<WorkspacePage />} />
+            <Route
+              path="/admin/user-details/:id"
+              element={<AdminUserDetails />}
+            />
           </Route>
 
           <Route element={<PrivateRoute />}>
             <Route path="/user/dashboard" element={<UserDashboard />} />
             <Route path="/user/tasks" element={<MyTasks />} />
             <Route path="/user/task-details/:id" element={<TaskDetails />} />
+            <Route path="/user/workspace/:id" element={<WorkspacePage />} />
           </Route>
 
           <Route path="/" element={<Root />} />

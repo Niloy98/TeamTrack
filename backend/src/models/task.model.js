@@ -45,7 +45,14 @@ const taskSchema = new Schema(
       },
     ],
     todoChecklist: [todoSchema],
-    progress: { type: Number, default: 0 },
+    workspaceCode: {
+      type: String,
+      default: "",
+    },
+    progress: {
+      type: Number,
+      default: 0,
+    },
     dueDate: {
       type: Date,
       required: true,

@@ -1,12 +1,8 @@
 import { combineReducers, configureStore } from "@reduxjs/toolkit";
 import { persistReducer, persistStore } from "redux-persist";
 import userReducer from "./slice/userSlice";
+import storage from "redux-persist/lib/storage";
 
-const storage = {
-  getItem: (key) => Promise.resolve(localStorage.getItem(key)),
-  setItem: (key, value) => Promise.resolve(localStorage.setItem(key, value)),
-  removeItem: (key) => Promise.resolve(localStorage.removeItem(key)),
-};
 
 const rootReducer = combineReducers({
   user: userReducer,

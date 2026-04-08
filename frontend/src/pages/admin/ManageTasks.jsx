@@ -81,7 +81,10 @@ const ManageTasks = () => {
                 createdAt={item.createdAt}
                 dueDate={item.dueDate}
                 assignedTo={item.assignedTo?.map((item) => item.profilePicture)}
-                completedTodoCount={item.completedTodoCount || 0}
+                completedTodoCount={
+                  item.todoChecklist?.filter((todo) => todo.completed).length ||
+                  0
+                }
                 todoChecklist={item.todoChecklist || []}
                 onClick={() => handleClick(item)}
               />

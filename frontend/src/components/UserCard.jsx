@@ -14,9 +14,22 @@ const UserCard = ({ userInfo, onClick }) => {
             className="h-12 w-12 rounded-full object-cover border-2 border-gray-100"
           />
           <div>
-            <p className="text-lg font-medium text-gray-800">
-              {userInfo?.name}
-            </p>
+            <div className="flex items-center gap-2">
+              <p className="text-lg font-medium text-gray-800">
+                {userInfo?.name}
+              </p>
+
+              <span
+                className={`px-2 py-0.5 text-[10px] font-bold rounded uppercase tracking-wider border ${
+                  userInfo?.role === "admin"
+                    ? "bg-purple-100 text-purple-700 border-purple-200"
+                    : "bg-gray-100 text-gray-600 border-gray-200"
+                }`}
+              >
+                {userInfo?.role === "admin" ? "Admin" : "Member"}
+              </span>
+            </div>
+
             <p className="text-sm text-gray-500">{userInfo?.email}</p>
           </div>
         </div>

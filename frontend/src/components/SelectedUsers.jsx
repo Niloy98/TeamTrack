@@ -19,7 +19,11 @@ const SelectedUsers = ({ selectedUser, setSelectedUser }) => {
       );
 
       if (response.data?.userWithTaskCounts.length > 0) {
-        setAllUsers(response.data.userWithTaskCounts);
+        const assignableUsers = response.data.userWithTaskCounts.filter(
+          (user) => user.role !== "admin",
+        );
+
+        setAllUsers(assignableUsers);
       }
     } catch (error) {
       console.log("Error fetching users:", error);
@@ -39,22 +43,21 @@ const SelectedUsers = ({ selectedUser, setSelectedUser }) => {
     setIsModalOpen(false);
   };
 
+  const handleCancel = () => {
+    setTempSelectedUser(selectedUser || []);
+    setIsModalOpen(false);
+  };
+
   const selectedUserAvatars = allUsers
     .filter((user) => selectedUser.includes(user._id))
     .map((user) => user.profilePicture);
 
   useEffect(() => {
     getAllUsers();
-
-    return () => {};
   }, []);
 
   useEffect(() => {
-    if (selectedUser.length === 0) {
-      setTempSelectedUser([]);
-    }
-
-    return () => {};
+    setTempSelectedUser(selectedUser || []);
   }, [selectedUser]);
 
   return (
@@ -75,11 +78,7 @@ const SelectedUsers = ({ selectedUser, setSelectedUser }) => {
         </div>
       )}
 
-      <Modal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        title={"Select User"}
-      >
+      <Modal isOpen={isModalOpen} onClose={handleCancel} title={"Select User"}>
         <div className="space-y-4 h-[60vh] overflow-y-auto">
           {allUsers?.map((user) => (
             <div
@@ -89,12 +88,11 @@ const SelectedUsers = ({ selectedUser, setSelectedUser }) => {
               <img
                 src={user?.profilePicture}
                 alt={user?.name}
-                className="w-10 h-10 rounded-full"
+                className="w-10 h-10 rounded-full object-cover border border-gray-200"
               />
 
               <div className="flex-1">
                 <p className="font-medium text-gray-800">{user?.name}</p>
-
                 <p className="text-[13px] text-gray-500">{user?.email}</p>
               </div>
 
@@ -102,22 +100,28 @@ const SelectedUsers = ({ selectedUser, setSelectedUser }) => {
                 type="checkbox"
                 checked={tempSelectedUser.includes(user._id)}
                 onChange={() => toggleUserSelection(user._id)}
-                className="w-4 h-4 text-primary bg-gray-100 border-gray-300 rounded-sm outline-none"
+                className="w-4 h-4 text-primary bg-gray-100 border-gray-300 rounded-sm outline-none cursor-pointer"
               />
             </div>
           ))}
+
+          {allUsers.length === 0 && (
+            <div className="text-center py-6 text-gray-500">
+              No team members available to assign.
+            </div>
+          )}
         </div>
 
-        <div className="flex justify-end gap-4 pt-4">
+        <div className="flex justify-end gap-4 pt-4 mt-2 border-t border-gray-100">
           <button
-            className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-900 rounded-md transition-colors duration-200"
-            onClick={() => setIsModalOpen(false)}
+            className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-900 rounded-md transition-colors duration-200 font-semibold text-sm"
+            onClick={handleCancel}
           >
             CANCEL
           </button>
 
           <button
-            className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md transition-colors duration-200"
+            className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md transition-colors duration-200 font-semibold text-sm"
             onClick={handleAssign}
           >
             DONE
